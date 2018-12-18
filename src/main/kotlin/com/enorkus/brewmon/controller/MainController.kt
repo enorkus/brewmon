@@ -18,25 +18,25 @@ class MainController {
     fun insertData(@RequestBody request: MonitoringDataRequest) = dataService.insertData(request)
 
     @RequestMapping("/units")
-    fun fetchAllMonitoringUnits(): List<MonitoringUnit> = dataService.fetchAllMonitoringUnits()
+    fun fetchAllMonitoringUnits() = dataService.fetchAllMonitoringUnits()
 
     @RequestMapping("/angle")
-    fun fetchAngleDataByUnitName(@RequestParam unitName: String): List<Angle> = dataService.fetchAngleDataByUnitName(unitName)
+    fun fetchAngleDataByUnitName(@RequestParam unitName: String) = dataService.fetchAngleDataByUnitName(unitName)
 
     @RequestMapping("/temperature")
-    fun fetchTemperatureDataByUnitName(@RequestParam unitName: String): List<Temperature> = dataService.fetchTemperatureDataByUnitName(unitName)
+    fun fetchTemperatureDataByUnitName(@RequestParam unitName: String) = dataService.fetchTemperatureDataByUnitName(unitName)
 
     @RequestMapping("/battery")
-    fun fetchBatteryDataByUnitName(@RequestParam unitName: String): List<Battery> = dataService.fetchBatteryDataByUnitName(unitName)
+    fun fetchBatteryDataByUnitName(@RequestParam unitName: String) = dataService.fetchBatteryDataByUnitName(unitName)
 
     @RequestMapping("/gravity")
-    fun fetchGravityDataByUnitName(@RequestParam unitName: String): List<Gravity> = dataService.fetchGravityDataByUnitName(unitName)
+    fun fetchGravityDataByUnitName(@RequestParam unitName: String) = dataService.fetchGravityDataByUnitName(unitName)
 
     @RequestMapping("/interval")
-    fun fetchIntervalDataByUnitName(@RequestParam unitName: String): List<Interval> = dataService.fetchIntervalDataByUnitName(unitName)
+    fun fetchIntervalDataByUnitName(@RequestParam unitName: String) = dataService.fetchLatestIntervalDataByUnitName(unitName)
 
     @RequestMapping("/rssi")
-    fun fetchRSSIDataByUnitName(@RequestParam unitName: String): List<RSSI> = dataService.fetchRSSIDataByUnitName(unitName)
+    fun fetchRSSIDataByUnitName(@RequestParam unitName: String) = dataService.fetchRSSIDataByUnitName(unitName)
 
 
     //TEST DATA

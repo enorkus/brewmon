@@ -24,7 +24,7 @@ interface GravityRepository: MongoRepository<Gravity, Long> {
 }
 
 interface IntervalRepository: MongoRepository<Interval, Long> {
-    fun findByName(name: String): List<Interval>
+    fun findFirstByOrderByTimestampDesc(name: String): Interval
 }
 
 interface RSSIRepository: MongoRepository<RSSI, Long> {

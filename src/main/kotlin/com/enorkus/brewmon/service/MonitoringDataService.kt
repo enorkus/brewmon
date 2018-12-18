@@ -59,7 +59,7 @@ class MonitoringDataService {
 
     fun fetchGravityDataByUnitName(name: String) = gravityRepository.findByName(name)
 
-    fun fetchIntervalDataByUnitName(name: String) = intervalRepository.findByName(name)
+    fun fetchLatestIntervalDataByUnitName(name: String) = intervalRepository.findFirstByOrderByTimestampDesc(name)
 
     fun fetchRSSIDataByUnitName(name: String) = rssiRepository.findByName(name)
 
