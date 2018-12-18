@@ -49,9 +49,9 @@ class MonitoringDataService {
         rssiRepository.insert(RSSI(currentTime, request.name, request.rssi))
     }
 
-    fun fetchAllMonitoringUnits(): List<MonitoringUnit> = monitoringUnitRepository.findAll()
+    fun fetchAllMonitoringUnits() = monitoringUnitRepository.findAll()
 
-    fun fetchAngleDataByUnitName(name: String): List<Angle> = angleRepository.findByName(name)
+    fun fetchAngleDataByUnitName(name: String) = angleRepository.findByName(name)
 
     fun fetchTemperatureDataByUnitName(name: String) = temperatureRepository.findByName(name)
 
