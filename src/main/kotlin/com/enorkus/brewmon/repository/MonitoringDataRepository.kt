@@ -7,25 +7,25 @@ import org.springframework.data.mongodb.repository.MongoRepository
 interface MonitoringUnitRepository: MongoRepository<MonitoringUnit, Long>
 
 interface AngleRepository: MongoRepository<Angle, Long> {
-    fun findByName(name: String): List<AngleResponse>
+    fun findByName(name: String): List<TimestampedFloatData>
 }
 
 interface TemperatureRepository: MongoRepository<Temperature, Long> {
-    fun findByName(name: String): List<TemperatureResponse>
+    fun findByName(name: String): List<TimestampedFloatData>
 }
 
 interface BatteryRepository: MongoRepository<Battery, Long> {
-    fun findByName(name: String): List<BatteryResponse>
+    fun findByName(name: String): List<TimestampedFloatData>
 }
 
 interface GravityRepository: MongoRepository<Gravity, Long> {
-    fun findByName(name: String): List<GravityResponse>
-}
-
-interface IntervalRepository: MongoRepository<Interval, Long> {
-    fun findFirstByOrderByTimestampDesc(name: String): IntervalResponse
+    fun findByName(name: String): List<TimestampedFloatData>
 }
 
 interface RSSIRepository: MongoRepository<RSSI, Long> {
-    fun findByName(name: String): List<RSSIResponse>
+    fun findByName(name: String): List<TimestampedFloatData>
+}
+
+interface IntervalRepository: MongoRepository<Interval, Long> {
+    fun findFirstByOrderByTimestampDesc(name: String): TimestampedFloatData
 }

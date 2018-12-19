@@ -3,6 +3,7 @@ package com.enorkus.brewmon.service
 import com.enorkus.brewmon.data.*
 import com.enorkus.brewmon.repository.*
 import com.enorkus.brewmon.request.MonitoringDataRequest
+import com.enorkus.brewmon.response.TimestampedFloatDataResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -49,59 +50,37 @@ class MonitoringDataService {
         rssiRepository.insert(RSSI(currentTime, request.name, request.rssi))
     }
 
-    fun fetchAllMonitoringUnits() = monitoringUnitRepository.findAll()
+    fun fetchAllMonitoringUnits(): List<MonitoringUnit> = monitoringUnitRepository.findAll()
 
-    fun fetchAngleDataByUnitName(name: String) = angleRepository.findByName(name)
+    fun fetchAngleDataByUnitName(name: String): TimestampedFloatDataResponse {
+        return mapResponse(angleRepository.findByName(name))
+    }
 
-    fun fetchTemperatureDataByUnitName(name: String) = temperatureRepository.findByName(name)
+    fun fetchTemperatureDataByUnitName(name: String): TimestampedFloatDataResponse {
+        return mapResponse(temperatureRepository.findByName(name))
+    }
 
-    fun fetchBatteryDataByUnitName(name: String) = batteryRepository.findByName(name)
+    fun fetchBatteryDataByUnitName(name: String): TimestampedFloatDataResponse {
+        return mapResponse(batteryRepository.findByName(name))
+    }
 
-    fun fetchGravityDataByUnitName(name: String) = gravityRepository.findByName(name)
+    fun fetchGravityDataByUnitName(name: String): TimestampedFloatDataResponse{
+        return mapResponse(gravityRepository.findByName(name))
+    }
+
+    fun fetchRSSIDataByUnitName(name: String): TimestampedFloatDataResponse {
+        return mapResponse(rssiRepository.findByName(name))
+    }
 
     fun fetchLatestIntervalDataByUnitName(name: String) = intervalRepository.findFirstByOrderByTimestampDesc(name)
 
-    fun fetchRSSIDataByUnitName(name: String) = rssiRepository.findByName(name)
-
-
-    //TEST DATA
-
-    fun insertTestData() {
-
-        val unit1 = "spindel-1"
-        val unit2 = "spindel-2"
-
-        monitoringUnitRepository.insert(MonitoringUnit(unit1))
-        monitoringUnitRepository.insert(MonitoringUnit(unit2))
-
-        val currentTime = System.currentTimeMillis()
-
-        for(i in 1..10) {
-            angleRepository.insert(Angle(currentTime, unit1, i.toString()))
-            temperatureRepository.insert(Temperature(currentTime, unit1, i.toString()))
-            batteryRepository.insert(Battery(currentTime, unit1, i.toString()))
-            gravityRepository.insert(Gravity(currentTime, unit1, i.toString()))
-            intervalRepository.insert(Interval(currentTime, unit1, "1200"))
-            rssiRepository.insert(RSSI(currentTime, unit1, i.toString()))
+    fun mapResponse(timestampedFloatData: List<TimestampedFloatData>): TimestampedFloatDataResponse {
+        val timestamps = mutableListOf<Long>()
+        val values = mutableListOf<Float>()
+        timestampedFloatData.forEach { data ->
+            timestamps.add(data.timestamp)
+            values.add(data.value)
         }
-
-        for(i in 11..20) {
-            angleRepository.insert(Angle(currentTime, unit2, i.toString()))
-            temperatureRepository.insert(Temperature(currentTime, unit2, i.toString()))
-            batteryRepository.insert(Battery(currentTime, unit2, i.toString()))
-            gravityRepository.insert(Gravity(currentTime, unit2, i.toString()))
-            intervalRepository.insert(Interval(currentTime, unit2, "1200"))
-            rssiRepository.insert(RSSI(currentTime, unit2, i.toString()))
-        }
-    }
-
-    fun clearDataBase() {
-        monitoringUnitRepository.deleteAll()
-        angleRepository.deleteAll()
-        temperatureRepository.deleteAll()
-        batteryRepository.deleteAll()
-        gravityRepository.deleteAll()
-        intervalRepository.deleteAll()
-        rssiRepository.deleteAll()
+        return TimestampedFloatDataResponse(timestamps, values)
     }
 }

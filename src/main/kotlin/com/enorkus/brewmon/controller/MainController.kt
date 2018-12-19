@@ -37,18 +37,4 @@ class MainController {
 
     @RequestMapping("/rssi")
     fun fetchRSSIDataByUnitName(@RequestParam unitName: String) = dataService.fetchRSSIDataByUnitName(unitName)
-
-
-    //TEST DATA
-
-    @RequestMapping("/insertTestData")
-    fun insertTestData() {
-        dataService.insertTestData()
-    }
-
-    @RequestMapping("/clearDataBase")
-    fun clearDataBase() {
-        dataService.clearDataBase()
-    }
-
 }

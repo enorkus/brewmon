@@ -2,49 +2,25 @@ package com.enorkus.brewmon.data
 
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document
-class MonitoringUnit(
-        val name: String
-)
+open class TimestampedFloatData(val timestamp: Long, val value: Float)
 
 @Document
-class Angle(
-        val timestamp: Long,
-        val name: String,
-        val value: String
-)
+class MonitoringUnit(val name: String)
 
 @Document
-class Temperature(
-        val timestamp: Long,
-        val name: String,
-        val value: String
-)
+class Angle(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)
 
 @Document
-class Battery(
-        val timestamp: Long,
-        val name: String,
-        val value: String
-)
+class Temperature(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)
 
 @Document
-class Gravity(
-        val timestamp: Long,
-        val name: String,
-        val value: String
-)
+class Battery(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)
 
 @Document
-class Interval(
-        val timestamp: Long,
-        val name: String,
-        val value: String
-)
+class Gravity(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)
 
 @Document
-class RSSI(
-        val timestamp: Long,
-        val name: String,
-        val value: String
-)
+class RSSI(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)
+
+@Document
+class Interval(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)

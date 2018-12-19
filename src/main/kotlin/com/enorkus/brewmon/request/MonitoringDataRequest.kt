@@ -7,11 +7,11 @@ class MonitoringDataRequest(
         val name: String,
         val ID: Long,
         val token: String,
-        val angle: String,
-        val temperature: String,
+        val angle: Float,
+        val temperature: Float,
         val temp_units: String,
-        val battery: String,
-        val gravity: String,
-        val interval: String,
-        val rssi: String
+        val battery: Float,
+        val gravity: Float,
+        val interval: Float,
+        val rssi: Float
 )
