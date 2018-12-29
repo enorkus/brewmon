@@ -65,7 +65,7 @@ class MonitoringDataService {
     }
 
     fun fetchGravityDataByUnitName(name: String): TimestampedFloatDataResponse{
-        return mapResponse(gravityRepository.findByName(name))
+        return mapGravityResponse(gravityRepository.findByName(name))
     }
 
     fun fetchRSSIDataByUnitName(name: String): TimestampedFloatDataResponse {
@@ -80,6 +80,16 @@ class MonitoringDataService {
         timestampedFloatData.forEach { data ->
             timestamps.add(data.timestamp)
             values.add(data.value)
+        }
+        return TimestampedFloatDataResponse(timestamps, values)
+    }
+
+    fun mapGravityResponse(timestampedFloatData: List<TimestampedFloatData>): TimestampedFloatDataResponse {
+        val timestamps = mutableListOf<Long>()
+        val values = mutableListOf<Float>()
+        timestampedFloatData.forEach { data ->
+            timestamps.add(data.timestamp)
+            values.add((1 + data.value / (258.6 - 227.1 * data.value /258.2)).toFloat())
         }
         return TimestampedFloatDataResponse(timestamps, values)
     }
