@@ -13,5 +13,5 @@ class MonitoringDataRequest(
         val battery: Float,
         val gravity: Float,
         val interval: Float,
-        val rssi: Float
+        val RSSI: Float
 )

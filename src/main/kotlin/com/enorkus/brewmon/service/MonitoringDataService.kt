@@ -47,7 +47,7 @@ class MonitoringDataService {
         batteryRepository.insert(Battery(currentTime, request.name, request.battery))
         gravityRepository.insert(Gravity(currentTime, request.name, request.gravity))
         intervalRepository.insert(Interval(currentTime, request.name, request.interval))
-        rssiRepository.insert(RSSI(currentTime, request.name, request.rssi))
+        rssiRepository.insert(RSSI(currentTime, request.name, request.RSSI))
     }
 
     fun fetchAllMonitoringUnits(): List<MonitoringUnit> = monitoringUnitRepository.findAll()
