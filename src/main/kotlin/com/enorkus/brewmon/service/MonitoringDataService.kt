@@ -46,33 +46,25 @@ class MonitoringDataService {
         temperatureRepository.insert(Temperature(currentTime, request.name, request.temperature))
         batteryRepository.insert(Battery(currentTime, request.name, request.battery))
         gravityRepository.insert(Gravity(currentTime, request.name, request.gravity))
-        intervalRepository.insert(Interval(currentTime, request.name, request.interval))
+        if(intervalRepository.findFirstByNameOrderByTimestampDesc(request.name).value != request.interval) {
+            intervalRepository.insert(Interval(currentTime, request.name, request.interval))
+        }
         rssiRepository.insert(RSSI(currentTime, request.name, request.RSSI))
     }
 
     fun fetchAllMonitoringUnits(): List<MonitoringUnit> = monitoringUnitRepository.findAll()
 
-    fun fetchAngleDataByUnitName(name: String): TimestampedFloatDataResponse {
-        return mapResponse(angleRepository.findByName(name))
-    }
+    fun fetchAngleDataByUnitName(name: String) = mapResponse(angleRepository.findByName(name))
 
-    fun fetchTemperatureDataByUnitName(name: String): TimestampedFloatDataResponse {
-        return mapResponse(temperatureRepository.findByName(name))
-    }
+    fun fetchTemperatureDataByUnitName(name: String) = mapResponse(temperatureRepository.findByName(name))
 
-    fun fetchBatteryDataByUnitName(name: String): TimestampedFloatDataResponse {
-        return mapResponse(batteryRepository.findByName(name))
-    }
+    fun fetchBatteryDataByUnitName(name: String) = mapResponse(batteryRepository.findByName(name))
 
-    fun fetchGravityDataByUnitName(name: String): TimestampedFloatDataResponse{
-        return mapGravityResponse(gravityRepository.findByName(name))
-    }
+    fun fetchGravityDataByUnitName(name: String) = mapGravityResponse(gravityRepository.findByName(name))
 
-    fun fetchRSSIDataByUnitName(name: String): TimestampedFloatDataResponse {
-        return mapResponse(rssiRepository.findByName(name))
-    }
+    fun fetchRSSIDataByUnitName(name: String) = mapResponse(rssiRepository.findByName(name))
 
-    fun fetchLatestIntervalDataByUnitName(name: String) = intervalRepository.findFirstByOrderByTimestampDesc(name)
+    fun fetchLatestIntervalDataByUnitName(name: String) = intervalRepository.findFirstByNameOrderByTimestampDesc(name)
 
     fun mapResponse(timestampedFloatData: List<TimestampedFloatData>): TimestampedFloatDataResponse {
         val timestamps = mutableListOf<Long>()
@@ -89,8 +81,10 @@ class MonitoringDataService {
         val values = mutableListOf<Float>()
         timestampedFloatData.forEach { data ->
             timestamps.add(data.timestamp)
-            values.add((1 + data.value / (258.6 - 227.1 * data.value /258.2)).toFloat())
+            values.add(convertPlatoToSpecificGravity(data.value))
         }
         return TimestampedFloatDataResponse(timestamps, values)
     }
+
+    fun convertPlatoToSpecificGravity(value: Float) = (1 + value / (258.6 - 227.1 * value /258.2)).toFloat()
 }

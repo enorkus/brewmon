@@ -27,5 +27,5 @@ interface RSSIRepository: MongoRepository<RSSI, Long> {
 }
 
 interface IntervalRepository: MongoRepository<Interval, Long> {
-    fun findFirstByOrderByTimestampDesc(name: String): TimestampedFloatData
+    fun findFirstByNameOrderByTimestampDesc(name: String): TimestampedFloatData
 }
