@@ -46,7 +46,7 @@ class MonitoringDataService {
         temperatureRepository.insert(Temperature(currentTime, request.name, request.temperature))
         batteryRepository.insert(Battery(currentTime, request.name, request.battery))
         gravityRepository.insert(Gravity(currentTime, request.name, request.gravity))
-        if(intervalRepository.findFirstByNameOrderByTimestampDesc(request.name).value != request.interval) {
+        if(request.interval != intervalRepository.findFirstByNameOrderByTimestampDesc(request.name)?.value) {
             intervalRepository.insert(Interval(currentTime, request.name, request.interval))
         }
         rssiRepository.insert(RSSI(currentTime, request.name, request.RSSI))
