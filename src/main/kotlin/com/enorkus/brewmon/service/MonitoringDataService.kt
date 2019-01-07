@@ -6,9 +6,13 @@ import com.enorkus.brewmon.request.MonitoringDataRequest
 import com.enorkus.brewmon.response.TimestampedFloatDataResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @Service
 class MonitoringDataService {
+
+    private val LOGGER = Logger.getLogger(MonitoringDataService::class.java.name)
 
     @Autowired
     lateinit var monitoringUnitRepository: MonitoringUnitRepository
@@ -38,18 +42,24 @@ class MonitoringDataService {
             if (it.name.equals(request.name)) unitExists = true
         }
 
-        if (!unitExists) monitoringUnitRepository.insert(MonitoringUnit(request.name))
+        try { if (!unitExists) monitoringUnitRepository.insert(MonitoringUnit(request.name)) } catch (e: Exception){ LOGGER.log(Level.FINE, "Failed to insert unit: $request", e) }
 
         val currentTime = System.currentTimeMillis()
 
-        angleRepository.insert(Angle(currentTime, request.name, request.angle))
-        temperatureRepository.insert(Temperature(currentTime, request.name, request.temperature))
-        batteryRepository.insert(Battery(currentTime, request.name, request.battery))
-        gravityRepository.insert(Gravity(currentTime, request.name, request.gravity))
-        if(request.interval != intervalRepository.findFirstByNameOrderByTimestampDesc(request.name)?.value) {
-            intervalRepository.insert(Interval(currentTime, request.name, request.interval))
+        try { angleRepository.insert(Angle(currentTime, request.name, request.angle)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert angle: $request", e) }
+        try { temperatureRepository.insert(Temperature(currentTime, request.name, request.temperature)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert temperature: $request", e) }
+        try { batteryRepository.insert(Battery(currentTime, request.name, request.battery)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert battery: $request", e) }
+        try { gravityRepository.insert(Gravity(currentTime, request.name, request.gravity)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert gravity: $request", e) }
+        try {
+            if(request.interval != intervalRepository.findFirstByNameOrderByTimestampDesc(request.name)?.value) {
+                try{ intervalRepository.insert(Interval(currentTime, request.name, request.interval)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert interval: $request", e) }
+            }
+        } catch (e: Exception) {
+            LOGGER.log(Level.FINE, "Failed to find interval: $request", e)
         }
-        rssiRepository.insert(RSSI(currentTime, request.name, request.RSSI))
+
+
+        try{ rssiRepository.insert(RSSI(currentTime, request.name, request.RSSI)) }catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert RSSI: $request", e) }
     }
 
     fun fetchAllMonitoringUnits(): List<MonitoringUnit> = monitoringUnitRepository.findAll()
