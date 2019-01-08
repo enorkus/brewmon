@@ -3,11 +3,17 @@ package com.enorkus.brewmon.service
 import com.enorkus.brewmon.data.*
 import com.enorkus.brewmon.repository.*
 import com.enorkus.brewmon.request.MonitoringDataRequest
+import com.enorkus.brewmon.response.MonitoringUnitResponse
 import com.enorkus.brewmon.response.TimestampedFloatDataResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.logging.Level
 import java.util.logging.Logger
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
+
 
 @Service
 class MonitoringDataService {
@@ -30,39 +36,59 @@ class MonitoringDataService {
     lateinit var gravityRepository: GravityRepository
 
     @Autowired
-    lateinit var intervalRepository: IntervalRepository
-
-    @Autowired
     lateinit var rssiRepository: RSSIRepository
 
+    @Autowired
+    lateinit var mongoTemplate: MongoTemplate
+
     fun insertData(request: MonitoringDataRequest) {
-        val allUnits = monitoringUnitRepository.findAll();
-        var unitExists = false
-        allUnits.forEach {
-            if (it.name.equals(request.name)) unitExists = true
-        }
-
-        try { if (!unitExists) monitoringUnitRepository.insert(MonitoringUnit(request.name)) } catch (e: Exception){ LOGGER.log(Level.FINE, "Failed to insert unit: $request", e) }
-
         val currentTime = System.currentTimeMillis()
 
-        try { angleRepository.insert(Angle(currentTime, request.name, request.angle)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert angle: $request", e) }
-        try { temperatureRepository.insert(Temperature(currentTime, request.name, request.temperature)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert temperature: $request", e) }
-        try { batteryRepository.insert(Battery(currentTime, request.name, request.battery)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert battery: $request", e) }
-        try { gravityRepository.insert(Gravity(currentTime, request.name, request.gravity)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert gravity: $request", e) }
+        insertOrUpdateMonitoringUnit(request)
         try {
-            if(request.interval != intervalRepository.findFirstByNameOrderByTimestampDesc(request.name)?.value) {
-                try{ intervalRepository.insert(Interval(currentTime, request.name, request.interval)) } catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert interval: $request", e) }
-            }
+            angleRepository.insert(Angle(currentTime, request.name, request.angle))
         } catch (e: Exception) {
-            LOGGER.log(Level.FINE, "Failed to find interval: $request", e)
+            LOGGER.log(Level.FINE, "Failed to insert angle: $request", e)
         }
-
-
-        try{ rssiRepository.insert(RSSI(currentTime, request.name, request.RSSI)) }catch(e: Exception){ LOGGER.log(Level.FINE, "Failed to insert RSSI: $request", e) }
+        try {
+            temperatureRepository.insert(Temperature(currentTime, request.name, request.temperature))
+        } catch (e: Exception) {
+            LOGGER.log(Level.FINE, "Failed to insert temperature: $request", e)
+        }
+        try {
+            batteryRepository.insert(Battery(currentTime, request.name, request.battery))
+        } catch (e: Exception) {
+            LOGGER.log(Level.FINE, "Failed to insert battery: $request", e)
+        }
+        try {
+            gravityRepository.insert(Gravity(currentTime, request.name, request.gravity))
+        } catch (e: Exception) {
+            LOGGER.log(Level.FINE, "Failed to insert gravity: $request", e)
+        }
+        try {
+            rssiRepository.insert(RSSI(currentTime, request.name, request.RSSI))
+        } catch (e: Exception) {
+            LOGGER.log(Level.FINE, "Failed to insert RSSI: $request", e)
+        }
     }
 
-    fun fetchAllMonitoringUnits(): List<MonitoringUnit> = monitoringUnitRepository.findAll()
+    private fun insertOrUpdateMonitoringUnit(request: MonitoringDataRequest) {
+        val query = Query(Criteria.where("name").`is`(request.name))
+        val update = Update().set("lastUpdated", System.currentTimeMillis()).set("updateInterval", (request.interval * 1000).toLong())
+        mongoTemplate.findAndModify(query, update, MonitoringUnit::class.java)
+    }
+
+    fun fetchAllMonitoringUnits(): List<MonitoringUnitResponse> {
+        val allUnits = monitoringUnitRepository.findAll()
+        val monitoringUnitsResponse = mutableListOf<MonitoringUnitResponse>()
+        allUnits.forEach { unit ->
+            val currentTime = System.currentTimeMillis()
+            val isOn = unit.updateInterval - (currentTime - unit.lastUpdated) > 0
+            val updateIntervalMins = unit.updateInterval / 60000
+            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, updateIntervalMins))
+        }
+        return monitoringUnitsResponse;
+    }
 
     fun fetchAngleDataByUnitName(name: String) = mapResponse(angleRepository.findByName(name))
 
@@ -73,8 +99,6 @@ class MonitoringDataService {
     fun fetchGravityDataByUnitName(name: String) = mapGravityResponse(gravityRepository.findByName(name))
 
     fun fetchRSSIDataByUnitName(name: String) = mapResponse(rssiRepository.findByName(name))
-
-    fun fetchLatestIntervalDataByUnitName(name: String) = intervalRepository.findFirstByNameOrderByTimestampDesc(name)
 
     fun mapResponse(timestampedFloatData: List<TimestampedFloatData>): TimestampedFloatDataResponse {
         val timestamps = mutableListOf<Long>()
@@ -96,5 +120,5 @@ class MonitoringDataService {
         return TimestampedFloatDataResponse(timestamps, values)
     }
 
-    fun convertPlatoToSpecificGravity(value: Float) = (1 + value / (258.6 - 227.1 * value /258.2)).toFloat()
+    fun convertPlatoToSpecificGravity(value: Float) = (1 + value / (258.6 - 227.1 * value / 258.2)).toFloat()
 }

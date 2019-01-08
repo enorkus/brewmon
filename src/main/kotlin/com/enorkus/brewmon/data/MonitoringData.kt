@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 open class TimestampedFloatData(val timestamp: Long, val value: Float)
 
 @Document
-class MonitoringUnit(val name: String)
+class MonitoringUnit(val name: String, var lastUpdated: Long, var updateInterval: Long)
 
 @Document
 class Angle(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)
@@ -21,6 +21,3 @@ class Gravity(timestamp: Long, val name: String?, value: Float): TimestampedFloa
 
 @Document
 class RSSI(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)
-
-@Document
-class Interval(timestamp: Long, val name: String?, value: Float): TimestampedFloatData(timestamp, value)

@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.client.HttpStatusCodeException
 
 class MonitoringUnitResponse(
-        val name: String
+        val name: String,
+        val isOn: Boolean,
+        val updateIntervalMins: Long
 )
 
 class TimestampedFloatDataResponse(

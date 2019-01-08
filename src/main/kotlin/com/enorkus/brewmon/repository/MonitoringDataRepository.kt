@@ -1,10 +1,11 @@
 package com.enorkus.brewmon.repository
 
 import com.enorkus.brewmon.data.*
-import com.enorkus.brewmon.response.*
 import org.springframework.data.mongodb.repository.MongoRepository
 
-interface MonitoringUnitRepository: MongoRepository<MonitoringUnit, Long>
+interface MonitoringUnitRepository: MongoRepository<MonitoringUnit, Long> {
+    fun findByName(name: String) : MonitoringUnit?
+}
 
 interface AngleRepository: MongoRepository<Angle, Long> {
     fun findByName(name: String): List<TimestampedFloatData>
@@ -24,8 +25,4 @@ interface GravityRepository: MongoRepository<Gravity, Long> {
 
 interface RSSIRepository: MongoRepository<RSSI, Long> {
     fun findByName(name: String): List<TimestampedFloatData>
-}
-
-interface IntervalRepository: MongoRepository<Interval, Long> {
-    fun findFirstByNameOrderByTimestampDesc(name: String): TimestampedFloatData?
 }
