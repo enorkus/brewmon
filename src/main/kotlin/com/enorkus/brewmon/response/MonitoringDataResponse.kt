@@ -7,6 +7,7 @@ import org.springframework.web.client.HttpStatusCodeException
 class MonitoringUnitResponse(
         val name: String,
         val isOn: Boolean,
+        val lastUpdatedMillis: Long,
         val updateIntervalMins: Long
 )
 

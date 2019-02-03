@@ -85,7 +85,7 @@ class MonitoringDataService {
             val currentTime = System.currentTimeMillis()
             val isOn = unit.updateInterval - (currentTime - unit.lastUpdated) > 0
             val updateIntervalMins = unit.updateInterval / 60000
-            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, updateIntervalMins))
+            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins))
         }
         return monitoringUnitsResponse;
     }
