@@ -74,7 +74,10 @@ class MonitoringDataService {
 
     private fun insertOrUpdateMonitoringUnit(request: MonitoringDataRequest) {
         val query = Query(Criteria.where("name").`is`(request.name))
-        val update = Update().set("lastUpdated", System.currentTimeMillis()).set("updateInterval", (request.interval * 1000).toLong())
+        val update = Update()
+                .set("lastUpdated", System.currentTimeMillis())
+                .set("updateInterval", (request.interval * 1000).toLong())
+                .set("lastRSSI", request.RSSI)
         mongoTemplate.findAndModify(query, update, MonitoringUnit::class.java)
     }
 
@@ -85,7 +88,7 @@ class MonitoringDataService {
             val currentTime = System.currentTimeMillis()
             val isOn = unit.updateInterval - (currentTime - unit.lastUpdated) > 0
             val updateIntervalMins = unit.updateInterval / 60000
-            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins))
+            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI))
         }
         return monitoringUnitsResponse;
     }

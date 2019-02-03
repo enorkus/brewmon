@@ -8,7 +8,8 @@ class MonitoringUnitResponse(
         val name: String,
         val isOn: Boolean,
         val lastUpdatedMillis: Long,
-        val updateIntervalMins: Long
+        val updateIntervalMins: Long,
+        val lastRSSI: Int
 )
 
 class TimestampedFloatDataResponse(
