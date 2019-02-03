@@ -9,7 +9,8 @@ class MonitoringUnitResponse(
         val isOn: Boolean,
         val lastUpdatedMillis: Long,
         val updateIntervalMins: Long,
-        val lastRSSI: Int
+        val lastRSSI: Int,
+        val inFermentationDays: Int
 )
 
 class TimestampedFloatDataResponse(

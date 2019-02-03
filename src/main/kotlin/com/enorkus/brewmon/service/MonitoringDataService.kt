@@ -78,7 +78,7 @@ class MonitoringDataService {
                 .set("lastUpdated", System.currentTimeMillis())
                 .set("updateInterval", (request.interval * 1000).toLong())
                 .set("lastRSSI", request.RSSI)
-        mongoTemplate.findAndModify(query, update, MonitoringUnit::class.java)
+        mongoTemplate.upsert(query, update, MonitoringUnit::class.java)
     }
 
     fun fetchAllMonitoringUnits(): List<MonitoringUnitResponse> {
@@ -88,7 +88,7 @@ class MonitoringDataService {
             val currentTime = System.currentTimeMillis()
             val isOn = unit.updateInterval - (currentTime - unit.lastUpdated) > 0
             val updateIntervalMins = unit.updateInterval / 60000
-            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI))
+            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI, unit.inFermentationDays))
         }
         return monitoringUnitsResponse;
     }
