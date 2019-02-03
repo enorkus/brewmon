@@ -73,12 +73,23 @@ class MonitoringDataService {
     }
 
     private fun insertOrUpdateMonitoringUnit(request: MonitoringDataRequest) {
-        val query = Query(Criteria.where("name").`is`(request.name))
-        val update = Update()
-                .set("lastUpdated", System.currentTimeMillis())
-                .set("updateInterval", (request.interval * 1000).toLong())
-                .set("lastRSSI", request.RSSI)
-        mongoTemplate.upsert(query, update, MonitoringUnit::class.java)
+        val currentTime = System.currentTimeMillis()
+        val allUnits = monitoringUnitRepository.findAll();
+        var unitExists = false
+        allUnits.forEach {
+            if (it.name.equals(request.name)) unitExists = true
+        }
+
+        if (!unitExists) {
+            monitoringUnitRepository.insert(MonitoringUnit(request.name, currentTime, (request.interval * 1000).toLong(), request.RSSI.toInt(), currentTime))
+        } else {
+            val query = Query(Criteria.where("name").`is`(request.name))
+            val update = Update()
+                    .set("lastUpdated", currentTime)
+                    .set("updateInterval", (request.interval * 1000).toLong())
+                    .set("lastRSSI", request.RSSI)
+            mongoTemplate.findAndModify(query, update, MonitoringUnit::class.java)
+        }
     }
 
     fun fetchAllMonitoringUnits(): List<MonitoringUnitResponse> {
@@ -88,7 +99,8 @@ class MonitoringDataService {
             val currentTime = System.currentTimeMillis()
             val isOn = unit.updateInterval - (currentTime - unit.lastUpdated) > 0
             val updateIntervalMins = unit.updateInterval / 60000
-            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI, unit.inFermentationDays))
+            val inFermentationDays = ((unit.lastUpdated - unit.fermentationStart) / (24 * 60 * 60 * 1000)).toInt()
+            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI, inFermentationDays))
         }
         return monitoringUnitsResponse;
     }
