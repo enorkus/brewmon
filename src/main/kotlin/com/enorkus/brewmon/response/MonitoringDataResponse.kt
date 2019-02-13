@@ -10,7 +10,8 @@ class MonitoringUnitResponse(
         val lastUpdatedMillis: Long,
         val updateIntervalMins: Long,
         val lastRSSI: Int,
-        val inFermentationDays: Int
+        val inFermentationDays: Int,
+        val alcoholByVolume: Double
 )
 
 class TimestampedFloatDataResponse(

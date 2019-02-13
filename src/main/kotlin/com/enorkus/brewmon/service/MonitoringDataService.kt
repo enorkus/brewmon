@@ -76,15 +76,22 @@ class MonitoringDataService {
         val currentTime = System.currentTimeMillis()
         val unit = monitoringUnitRepository.findByName(request.name)
         if (unit == null) {
-            monitoringUnitRepository.insert(MonitoringUnit(request.name, currentTime, (request.interval * 1000).toLong(), request.RSSI.toInt(), currentTime))
+            monitoringUnitRepository.insert(MonitoringUnit(request.name, currentTime, (request.interval * 1000).toLong(), request.RSSI.toInt(), currentTime, 0.0))
         } else {
+            val alcoholByVolume = calculateAlcoholByVolume(unit.name, request.gravity)
             val query = Query(Criteria.where("name").`is`(request.name))
             val update = Update()
                     .set("lastUpdated", currentTime)
                     .set("updateInterval", (request.interval * 1000).toLong())
                     .set("lastRSSI", request.RSSI)
+                    .set("alcoholByVolume", alcoholByVolume)
             mongoTemplate.findAndModify(query, update, MonitoringUnit::class.java)
         }
+    }
+
+    private fun calculateAlcoholByVolume(unitName: String, gravity: Float): Double {
+        val originalGravity = gravityRepository.findFirstByNameOrderByTimestampAsc(unitName).value
+        return (originalGravity - gravity) * 131.25
     }
 
     fun fetchAllMonitoringUnits(): List<MonitoringUnitResponse> {
@@ -95,7 +102,7 @@ class MonitoringDataService {
             val isOn = unit.updateInterval - (currentTime - unit.lastUpdated) > 0
             val updateIntervalMins = unit.updateInterval / 60000
             val inFermentationDays = ((unit.lastUpdated - unit.fermentationStart) / (24 * 60 * 60 * 1000)).toInt()
-            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI, inFermentationDays))
+            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI, inFermentationDays, unit.alcoholByVolume))
         }
         return monitoringUnitsResponse;
     }
