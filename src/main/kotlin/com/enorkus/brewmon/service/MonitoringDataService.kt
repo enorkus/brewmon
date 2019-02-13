@@ -74,13 +74,8 @@ class MonitoringDataService {
 
     private fun insertOrUpdateMonitoringUnit(request: MonitoringDataRequest) {
         val currentTime = System.currentTimeMillis()
-        val allUnits = monitoringUnitRepository.findAll();
-        var unitExists = false
-        allUnits.forEach {
-            if (it.name.equals(request.name)) unitExists = true
-        }
-
-        if (!unitExists) {
+        val unit = monitoringUnitRepository.findByName(request.name)
+        if (unit == null) {
             monitoringUnitRepository.insert(MonitoringUnit(request.name, currentTime, (request.interval * 1000).toLong(), request.RSSI.toInt(), currentTime))
         } else {
             val query = Query(Criteria.where("name").`is`(request.name))
