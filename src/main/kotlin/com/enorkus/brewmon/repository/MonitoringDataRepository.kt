@@ -22,6 +22,7 @@ interface BatteryRepository: MongoRepository<Battery, Long> {
 interface GravityRepository: MongoRepository<Gravity, Long> {
     fun findByName(name: String): List<TimestampedFloatData>
     fun findFirstByNameOrderByTimestampAsc(name: String): TimestampedFloatData
+    fun findTop10ByNameOrderByTimestampDesc(name: String): List<TimestampedFloatData>
 }
 
 interface RSSIRepository: MongoRepository<RSSI, Long> {
