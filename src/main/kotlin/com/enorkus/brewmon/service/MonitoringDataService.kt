@@ -103,12 +103,12 @@ class MonitoringDataService {
             val updateIntervalMins = unit.updateInterval / 60000
             val inFermentationDays = ((unit.lastUpdated - unit.fermentationStart) / (24 * 60 * 60 * 1000)).toInt()
             val abv = calculateMeanABV(unit.name)
-            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI, inFermentationDays, unit.alcoholByVolume))
+            monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI, inFermentationDays, abv))
         }
         return monitoringUnitsResponse;
     }
     
-    private fun calculateMeanABV(unitName: String): Any {
+    private fun calculateMeanABV(unitName: String): Double {
         val originalGravity = gravityRepository.findFirstByNameOrderByTimestampAsc(unitName).value
         val originalGravitySpecific = convertPlatoToSpecificGravity(originalGravity)
 
