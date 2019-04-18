@@ -102,9 +102,20 @@ class MonitoringDataService {
             val isOn = unit.updateInterval - (currentTime - unit.lastUpdated) > 0
             val updateIntervalMins = unit.updateInterval / 60000
             val inFermentationDays = ((unit.lastUpdated - unit.fermentationStart) / (24 * 60 * 60 * 1000)).toInt()
+            val abv = calculateMeanABV(unit.name)
             monitoringUnitsResponse.add(MonitoringUnitResponse(unit.name, isOn, unit.lastUpdated, updateIntervalMins, unit.lastRSSI, inFermentationDays, unit.alcoholByVolume))
         }
         return monitoringUnitsResponse;
+    }
+    
+    private fun calculateMeanABV(unitName: String): Any {
+        val originalGravity = gravityRepository.findFirstByNameOrderByTimestampAsc(unitName).value
+        val originalGravitySpecific = convertPlatoToSpecificGravity(originalGravity)
+
+        val last10Gravities = gravityRepository.findTop10ByNameOrderByTimestampDesc(unitName)
+        val sumOfLastGravities = 0.0
+        last10Gravities.forEach { sumOfLastGravities + ((originalGravitySpecific - convertPlatoToSpecificGravity(it.value)) * 131.25) }
+        return sumOfLastGravities/last10Gravities.size
     }
 
     fun fetchAngleDataByUnitName(name: String) = mapResponse(angleRepository.findByName(name))
