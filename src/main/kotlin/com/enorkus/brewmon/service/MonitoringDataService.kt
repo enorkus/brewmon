@@ -113,9 +113,9 @@ class MonitoringDataService {
         val originalGravitySpecific = convertPlatoToSpecificGravity(originalGravity)
 
         val last10Gravities = gravityRepository.findTop10ByNameOrderByTimestampDesc(unitName)
-        val sumOfLastGravities = 0.0
-        last10Gravities.forEach { sumOfLastGravities + ((originalGravitySpecific - convertPlatoToSpecificGravity(it.value)) * 131.25) }
-        return sumOfLastGravities/last10Gravities.size
+        var sumOfLastABVs = 0.0
+        last10Gravities.forEach { sumOfLastABVs += ((originalGravitySpecific - convertPlatoToSpecificGravity(it.value)) * 131.25) }
+        return sumOfLastABVs/last10Gravities.size
     }
 
     fun fetchAngleDataByUnitName(name: String) = mapResponse(angleRepository.findByName(name))
